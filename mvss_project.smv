@@ -20,4 +20,51 @@
 
 MODULE main
  VAR
-   
+   c : consumer ();
+   m : merchant ();
+   n : netbill ();
+
+-- List of consumer states:
+--- PR: Price Request
+--- AQ: Awaiting Quote
+--- GR: Goods request
+--- AEG: Awaiting Encrypted Goods
+--- SEPO: Signed Electronic Payment Order
+--- ASR: Awaiting Signed Result
+
+
+MODULE consumer()
+ VAR
+  state: {PR, AQ, GR, AEG, SEPO, ASR}
+ 
+ASSIGN
+   init (state) := PR;
+
+-- List of merchant states:
+--- APR: Await Price Request
+--- PQ: Price Quote
+--- RGR: Await Goods request	WIP: can a merchant receive a goods request whitout a Price request?
+--- EG: Encrypted Goods
+--- ASEPO: Await Signed Electronic Payment Order
+--- EEPO: Endorsed EPO
+--- ASR: Await Signed Result
+--- SSR: Send Signed Result
+
+MODULE merchant()
+ VAR
+  state: {APR, PQ, AGR, EG, ASEPO, EEPO, ASR, SSR}
+ 
+ASSIGN
+   init (state) := APR;
+
+
+-- List of netbill server states:
+--- AEPO: Endorsed EPO
+--- SSR: Send Signed Result
+
+MODULE netbill()
+ VAR
+  state: {AEPO, SSR}
+ 
+ASSIGN
+   init (state) := AEPO;
