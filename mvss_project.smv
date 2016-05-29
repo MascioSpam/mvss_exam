@@ -35,7 +35,7 @@ MODULE main
 
 MODULE consumer()
  VAR
-  state: {PR, AQ, GR, AEG, SEPO, ASR}
+  state: {PR, AQ, GR, AEG, SEPO, ASR, ERROR}
  
 ASSIGN
    init (state) := PR;
@@ -52,7 +52,7 @@ ASSIGN
 
 MODULE merchant()
  VAR
-  state: {APR, PQ, AGR, EG, ASEPO, EEPO, ASR, SSR}
+  state: {APR, PQ, AGR, EG, ASEPO, EEPO, ASR, SSR, ERROR}
  
 ASSIGN
    init (state) := APR;
@@ -64,7 +64,7 @@ ASSIGN
 
 MODULE netbill()
  VAR
-  state: {AEPO, SSR}
+  state: {AEPO, SSR, ERROR}
  
 ASSIGN
    init (state) := AEPO;
