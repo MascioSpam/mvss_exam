@@ -39,20 +39,19 @@ MODULE consumer()
  
 ASSIGN
    init (state) := C;
-   next (state) := 
-     case
+   next (state) := case
        state = C : {C, PR};
-       state = PR & m.state = PQ : {GR}
-       state = GR & m.state = EG : {SEPO}
-       state = SEPO & m.state = SR : {PD}
+       state = PR & m.state = PQ : GR;
+       state = GR & m.state = EG : SEPO;
+       state = SEPO & m.state = SR : PD;
    esac;
 
 -- List of merchant states:
---- M: Merchant
---- PQ: Price Quote
---- EG: Encrypted Goods
+--- M:    Merchant
+--- PQ:   Price Quote
+--- EG:   Encrypted Goods
 --- EEPO: Endorsed EPO
---- SR: Signed Result
+--- SR:   Signed Result
 --- ERROR
 
 MODULE merchant()
@@ -61,17 +60,16 @@ MODULE merchant()
  
 ASSIGN
    init (state) := M;
-   next (state) :=
-     case
-       state = M & c.state = PR : {PQ};
-       state = PQ & c.state = GR : {EG};
-       state = EG & c.state = SEPO : {EEPO};
-       state = EEPO & n.state = SR : {SR};
+   next (state) := case
+       state = M & c.state = PR : PQ;
+       state = PQ & c.state = GR : EG;
+       state = EG & c.state = SEPO : EEPO;
+       state = EEPO & n.state = SR : SR;
    esac;
 
 
 -- List of netbill server states:
---- N: Netbill
+--- N:  Netbill
 --- SR: Signed Result
 
 MODULE netbill()
@@ -80,7 +78,6 @@ MODULE netbill()
  
 ASSIGN
    init (state) := N;
-   next (state) := 
-     case
-       state = N  & m.state = EEPO : {SR};
+   next (state) := case
+       state = N  & m.state = EEPO : SR;
    esac;
