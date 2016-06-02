@@ -29,6 +29,7 @@ MODULE main
 --- PR:   Price Request
 --- GR:   Goods request
 --- SEPO: Signed Electronic Payment Order
+--- PD:   Purchase done
 --- ERROR
 
 
@@ -41,32 +42,45 @@ ASSIGN
    next (state) := 
      case
        state = C : {C, PR};
+       state = PR & m.state = PQ : {GR}
+       state = GR & m.state = EG : {SEPO}
+       state = SEPO & m.state = SR : {PD}
    esac;
 
 -- List of merchant states:
 --- M: Merchant
 --- PQ: Price Quote
---- SEG: Send Encrypted Goods
+--- EG: Encrypted Goods
 --- EEPO: Endorsed EPO
---- SSR: Send Signed Result
+--- SR: Signed Result
 --- ERROR
 
 MODULE merchant()
  VAR
-  state: {M, PQ, SEG, EEPO, SSR, ERROR}
+  state: {M, PQ, SEG, EEPO, SR, ERROR}
  
 ASSIGN
    init (state) := M;
-   next (state)
+   next (state) :=
+     case
+       state = M & c.state = PR : {PQ};
+       state = PQ & c.state = GR : {EG};
+       state = EG & c.state = SEPO : {EEPO};
+       state = EEPO & n.state = SR : {SR};
+   esac;
 
 
 -- List of netbill server states:
 --- N: Netbill
---- SSR: Send Signed Result
+--- SR: Signed Result
 
 MODULE netbill()
  VAR
-  state: {N, SSR, ERROR}
+  state: {N, SR, ERROR}
  
 ASSIGN
    init (state) := N;
+   next (state) := 
+     case
+       state = N  & m.state = EEPO : {SR};
+   esac;
