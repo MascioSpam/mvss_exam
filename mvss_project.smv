@@ -27,7 +27,6 @@ MODULE main
 -- List of consumer states:
 --- C:	  Consumer
 --- PR:   Price Request
---- GR:   Goods request
 --- SEPO: Signed Electronic Payment Order
 --- PD:   Purchase done
 --- ERROR
@@ -35,20 +34,18 @@ MODULE main
 
 MODULE consumer()
  VAR
-  state: {C, PR, GR, SEPO, ERROR}
+  state: {C, PR, SEPO, ERROR}
  
 ASSIGN
    init (state) := C;
    next (state) := case
-       state = C : {C, PR};
-       state = PR & m.state = PQ : GR;
-       state = GR & m.state = EG : SEPO;
+       state = C : PR;
+       state = PR & m.state = EG : SEPO;
        state = SEPO & m.state = SR : PD;
    esac;
 
 -- List of merchant states:
 --- M:    Merchant
---- PQ:   Price Quote
 --- EG:   Encrypted Goods
 --- EEPO: Endorsed EPO
 --- SR:   Signed Result
@@ -56,13 +53,12 @@ ASSIGN
 
 MODULE merchant()
  VAR
-  state: {M, PQ, SEG, EEPO, SR, ERROR}
+  state: {M, EG, EEPO, SR, ERROR}
  
 ASSIGN
    init (state) := M;
    next (state) := case
-       state = M & c.state = PR : PQ;
-       state = PQ & c.state = GR : EG;
+       state = M & c.state = PR : EG;
        state = EG & c.state = SEPO : EEPO;
        state = EEPO & n.state = SR : SR;
    esac;
