@@ -34,6 +34,7 @@ MODULE main
  ASSIGN
    init (type) := {1, 2, 3, 4};
 
+
 -- List of consumer states:
 --- C:	  Consumer
 --- PR:   Price Request
@@ -41,10 +42,9 @@ MODULE main
 --- PD:   Purchase done
 --- ERROR
 
-
 MODULE consumer()
  VAR
-  state: {C, PR, SEPO, ERROR}
+  state: {C, PR, SEPO, ERROR};
  
  ASSIGN
    init (state) := C;
@@ -58,6 +58,7 @@ MODULE consumer()
      TRUE : ERROR;
    esac;
 
+
 -- List of merchant states:
 --- M:    Merchant
 --- EG:   Encrypted Goods
@@ -67,7 +68,7 @@ MODULE consumer()
 
 MODULE merchant()
  VAR
-  state: {M, EG, EEPO, SR, ERROR}
+  state: {M, EG, EEPO, SR, ERROR};
  
  ASSIGN
    init (state) := M;
@@ -90,7 +91,7 @@ MODULE merchant()
 
 MODULE netbill()
  VAR
-  state: {N, SR, ERROR}
+  state: {N, SR, ERROR};
  
  ASSIGN
    init (state) := N;
