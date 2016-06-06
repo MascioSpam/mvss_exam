@@ -51,7 +51,7 @@ SPEC
 
 MODULE consumer(m)
  VAR
-  state: {I, PR, SEPO, PD,ERROR};
+  state: {I, PR, SEPO, PD, ERROR};
  
  ASSIGN
    init (state) := I;
@@ -117,7 +117,7 @@ MODULE netbill(m, type)
  ASSIGN
    init (state) := I;
    next (state) := case
-     state = I  & type = 1 & m.state = EEPO : SR;
+     state = I & type = 1 & m.state = EEPO : SR;
    -- Purchase Done
      state = SR & m.state = PD : PD;
      state = I : I;
