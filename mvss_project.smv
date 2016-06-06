@@ -18,11 +18,21 @@
 -- Modules --
 -------------
 
+-- List of Zero-Priced Goods protocol types
+--- 1: Certified Delivery
+--- 2: Certified Delivery without NetBill Server
+--- 3: Verified Delivery
+--- 4: Unverified Delivery
+
 MODULE main
  VAR
+   type : {1, 2, 3, 4};
    c : consumer ();
    m : merchant ();
    n : netbill ();
+ 
+ ASSIGN
+   init (type) := {1, 2, 3, 4};
 
 -- List of consumer states:
 --- C:	  Consumer
@@ -36,12 +46,16 @@ MODULE consumer()
  VAR
   state: {C, PR, SEPO, ERROR}
  
-ASSIGN
+ ASSIGN
    init (state) := C;
    next (state) := case
-       state = C : PR;
-       state = PR & m.state = EG : SEPO;
-       state = SEPO & m.state = SR : PD;
+     state = C : PR;
+   -- Type 1/2/3
+     state = PR & m.state = EG : SEPO;
+     state = SEPO & m.state = SR : PD;
+   -- Type 4
+     state = PR & m.state = SR : PD;
+     TRUE : ERROR;
    esac;
 
 -- List of merchant states:
@@ -55,12 +69,18 @@ MODULE merchant()
  VAR
   state: {M, EG, EEPO, SR, ERROR}
  
-ASSIGN
+ ASSIGN
    init (state) := M;
    next (state) := case
-       state = M & c.state = PR : EG;
-       state = EG & c.state = SEPO : EEPO;
-       state = EEPO & n.state = SR : SR;
+     state = M & c.state = PR : EG;
+   -- Type 1
+     state = EG & c.state = SEPO & type = 1 : EEPO;
+     state = EEPO & n.state = SR & type = 1: SR;
+   -- Type 2/3
+     state = EG & c.state = SEPO & (type = 2 | type = 3) : SR;
+   -- Type 4
+     state = M & c.state = PR & type = 4 : SR;
+     TRUE : ERROR;
    esac;
 
 
@@ -72,8 +92,9 @@ MODULE netbill()
  VAR
   state: {N, SR, ERROR}
  
-ASSIGN
+ ASSIGN
    init (state) := N;
    next (state) := case
-       state = N  & m.state = EEPO : SR;
+     state = N  & m.state = EEPO : SR;
+     TRUE : ERROR;
    esac;
