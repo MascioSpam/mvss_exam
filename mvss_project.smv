@@ -38,6 +38,9 @@ MODULE main
 SPEC
   AG (c.state != ERROR & m.state != ERROR & n.state != ERROR);
 
+SPEC
+  AF (c.state = PD & m.state = PD & n.state = PD);
+
 
 -- List of consumer states:
 --- I:	  Idle
@@ -85,7 +88,7 @@ MODULE merchant(c, n, type)
      state = I & c.state = PR : GE;
    -- Type 1
      state = GE & c.state = SEPO & type = 1 : EEPO;
-     state = EEPO & n.state = SR & type = 1: SR;
+     state = EEPO & n.state = SR & type = 1 : SR;
    -- Type 2/3
      state = GE & c.state = SEPO & (type = 2 | type = 3) : SR;
    -- Type 4
