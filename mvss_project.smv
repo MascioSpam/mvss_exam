@@ -27,9 +27,9 @@
 MODULE main
  VAR
    type : {1, 2, 3, 4};
-   c : consumer ();
-   m : merchant ();
-   n : netbill ();
+   c : consumer (m);
+   m : merchant (c, n, type);
+   n : netbill (m, type);
  
  ASSIGN
    init (type) := {1, 2, 3, 4};
@@ -42,16 +42,16 @@ MODULE main
 --- PD:   Purchase done
 --- ERROR
 
-MODULE consumer()
+MODULE consumer(m)
  VAR
-  state: {C, PR, SEPO, ERROR};
+  state: {C, PR, SEPO, PD,ERROR};
  
  ASSIGN
    init (state) := C;
    next (state) := case
      state = C : PR;
    -- Type 1/2/3
-     state = PR & m.state = EG : SEPO;
+     state = PR & m.state = GE : SEPO;
      state = SEPO & m.state = SR : PD;
    -- Type 4
      state = PR & m.state = SR : PD;
@@ -61,24 +61,24 @@ MODULE consumer()
 
 -- List of merchant states:
 --- M:    Merchant
---- EG:   Encrypted Goods
+--- GE:   Encrypted Goods
 --- EEPO: Endorsed EPO
 --- SR:   Signed Result
 --- ERROR
 
-MODULE merchant()
+MODULE merchant(c, n, type)
  VAR
-  state: {M, EG, EEPO, SR, ERROR};
+  state: {M, GE, EEPO, SR, ERROR};
  
  ASSIGN
    init (state) := M;
    next (state) := case
-     state = M & c.state = PR : EG;
+     state = M & c.state = PR : GE;
    -- Type 1
-     state = EG & c.state = SEPO & type = 1 : EEPO;
+     state = GE & c.state = SEPO & type = 1 : EEPO;
      state = EEPO & n.state = SR & type = 1: SR;
    -- Type 2/3
-     state = EG & c.state = SEPO & (type = 2 | type = 3) : SR;
+     state = GE & c.state = SEPO & (type = 2 | type = 3) : SR;
    -- Type 4
      state = M & c.state = PR & type = 4 : SR;
      TRUE : ERROR;
@@ -89,13 +89,14 @@ MODULE merchant()
 --- N:  Netbill
 --- SR: Signed Result
 
-MODULE netbill()
+MODULE netbill(m, type)
  VAR
   state: {N, SR, ERROR};
  
  ASSIGN
    init (state) := N;
    next (state) := case
-     state = N  & m.state = EEPO : SR;
+     state = N  & type = 1 & m.state = EEPO : SR;
+     state = N & type != 1 : SR;
      TRUE : ERROR;
    esac;
