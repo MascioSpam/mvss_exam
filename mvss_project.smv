@@ -39,7 +39,7 @@ SPEC
   AG (c.state != ERROR & m.state != ERROR & n.state != ERROR);
 
 SPEC
-  AF (c.state = PD & m.state = PD & n.state = PD);
+  AF (c.state = PD & m.state = PD);
 
 
 -- List of consumer states:
@@ -85,7 +85,7 @@ MODULE merchant(c, n, type)
  ASSIGN
    init (state) := I;
    next (state) := case
-     state = I & c.state = PR : GE;
+     state = I & c.state = PR & type != 4 : GE;
    -- Type 1
      state = GE & c.state = SEPO & type = 1 : EEPO;
      state = EEPO & n.state = SR & type = 1 : SR;
