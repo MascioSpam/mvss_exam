@@ -34,6 +34,10 @@ MODULE main
  ASSIGN
    init (type) := {1, 2, 3, 4};
 
+-- Checking that no error occurred
+SPEC
+  AG (c.state != ERROR & m.state != ERROR & n.state != ERROR);
+
 
 -- List of consumer states:
 --- I:	  Idle
