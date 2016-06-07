@@ -35,9 +35,6 @@ MODULE main
    init (type) := {1, 2, 3, 4};
    next (type) := type;
 
--- Checking that no error occurred
-SPEC AG (c.state != ERROR & m.state != ERROR & n.state != ERROR);
-
 -- Checking that all computation end whit "Purchase Done"
 SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 
@@ -47,11 +44,10 @@ SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 --- PR:   Price Request
 --- SEPO: Signed Electronic Payment Order
 --- PD:   Purchase done
---- ERROR
 
 MODULE consumer(m)
  VAR
-  state: {I, PR, SEPO, PD, ERROR};
+  state: {I, PR, SEPO, PD};
  
  ASSIGN
    init (state) := I;
@@ -62,11 +58,7 @@ MODULE consumer(m)
      state = SEPO & m.state = SR : PD;
    -- Type 4
      state = PR & m.state = SR : PD;
-     state = I : I;
-     state = PR : PR;
-     state = SEPO : SEPO;
-     state = PD : PD;
-     TRUE : ERROR;
+     TRUE : state;
    esac;
 
 
@@ -76,11 +68,10 @@ MODULE consumer(m)
 --- EEPO: Endorsed EPO
 --- SR:   Signed Result
 --- PD:   Purchase done
---- ERROR
 
 MODULE merchant(c, n, type)
  VAR
-  state: {I, GE, EEPO, SR, PD, ERROR};
+  state: {I, GE, EEPO, SR, PD};
  
  ASSIGN
    init (state) := I;
@@ -95,12 +86,7 @@ MODULE merchant(c, n, type)
      state = I & c.state = PR & type = 4 : SR;
    -- Purchase Done
      state = SR & c.state = PD : PD;
-     state = I : I;
-     state = GE : GE;
-     state = EEPO : EEPO;
-     state = SR : SR;
-     state = PD : PD;
-     TRUE : ERROR;
+     TRUE : state;
    esac;
 
 
@@ -108,11 +94,10 @@ MODULE merchant(c, n, type)
 --- I:  Idle
 --- SR: Signed Result
 --- PD:   Purchase done
---- ERROR
 
 MODULE netbill(m, type)
  VAR
-  state: {I, SR, PD, ERROR};
+  state: {I, SR, PD};
  
  ASSIGN
    init (state) := I;
@@ -120,8 +105,5 @@ MODULE netbill(m, type)
      state = I & type = 1 & m.state = EEPO : SR;
    -- Purchase Done
      state = SR & m.state = PD : PD;
-     state = I : I;
-     state = SR : SR;
-     state = PD : PD;
-     TRUE : ERROR;
+     TRUE : state;
    esac;
