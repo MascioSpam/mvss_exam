@@ -33,13 +33,13 @@ MODULE main
  
  ASSIGN
    init (type) := {1, 2, 3, 4};
+   next (type) := type;
 
 -- Checking that no error occurred
-SPEC
-  AG (c.state != ERROR & m.state != ERROR & n.state != ERROR);
+SPEC AG (c.state != ERROR & m.state != ERROR & n.state != ERROR);
 
-SPEC
-  AF (c.state = PD & m.state = PD);
+-- Checking that all computation end whit "Purchase Done"
+SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 
 
 -- List of consumer states:
