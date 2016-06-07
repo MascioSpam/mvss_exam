@@ -26,14 +26,9 @@
 
 MODULE main
  VAR
-   type : {1, 2, 3, 4};
    c : consumer (m);
-   m : merchant (c, n, type);
-   n : netbill (m, type);
- 
- ASSIGN
-   init (type) := {1, 2, 3, 4};
-   next (type) := type;
+   m : merchant (c, n);
+   n : netbill (m);
 
 -- Checking that all computation end whit "Purchase Done"
 SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
@@ -47,9 +42,13 @@ SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 
 MODULE consumer(m)
  VAR
-  state: {I, PR, SEPO, PD};
+   state: {I, PR, SEPO, PD};
+   type : {1, 2, 3, 4};
  
  ASSIGN
+   init (type) := {1, 2, 3, 4};
+   next (type) := type;
+
    init (state) := I;
    next (state) := case
      state = I : PR;
@@ -69,21 +68,21 @@ MODULE consumer(m)
 --- SR:   Signed Result
 --- PD:   Purchase done
 
-MODULE merchant(c, n, type)
+MODULE merchant(c, n)
  VAR
   state: {I, GE, EEPO, SR, PD};
  
  ASSIGN
    init (state) := I;
    next (state) := case
-     state = I & c.state = PR & type != 4 : GE;
+     state = I & c.state = PR & c.type != 4 : GE;
    -- Type 1
-     state = GE & c.state = SEPO & type = 1 : EEPO;
-     state = EEPO & n.state = SR & type = 1 : SR;
+     state = GE & c.state = SEPO & c.type = 1 : EEPO;
+     state = EEPO & n.state = SR & c.type = 1 : SR;
    -- Type 2/3
-     state = GE & c.state = SEPO & (type = 2 | type = 3) : SR;
+     state = GE & c.state = SEPO & (c.type = 2 | c.type = 3) : SR;
    -- Type 4
-     state = I & c.state = PR & type = 4 : SR;
+     state = I & c.state = PR & c.type = 4 : SR;
    -- Purchase Done
      state = SR & c.state = PD : PD;
      TRUE : state;
@@ -95,14 +94,14 @@ MODULE merchant(c, n, type)
 --- SR: Signed Result
 --- PD:   Purchase done
 
-MODULE netbill(m, type)
+MODULE netbill(m)
  VAR
   state: {I, SR, PD};
  
  ASSIGN
    init (state) := I;
    next (state) := case
-     state = I & type = 1 & m.state = EEPO : SR;
+     state = I & m.c.type = 1 & m.state = EEPO : SR;
    -- Purchase Done
      state = SR & m.state = PD : PD;
      TRUE : state;
