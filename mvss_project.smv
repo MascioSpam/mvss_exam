@@ -95,8 +95,10 @@ MODULE merchant(c, n)
      state = GE & c.state = SEPO & !c.require_netbill & !require_netbill & (c.require_encryption | delivery_confirmation) : SR;
    -- Type 4
      state = I & c.state = PR & !c.require_netbill & !require_netbill & !c.require_encryption & !delivery_confirmation : SR;
-   -- Purchase Done
-     state = SR & c.state = PD : PD;
+   -- Purchase Done for type 1,2,3
+     state = SR & (c.require_netbill | require_netbill | c.require_encryption | delivery_confirmation) & c.state = PD : PD;
+   -- Purchase Done for type 4
+     state = SR & !(c.require_netbill | require_netbill | c.require_encryption | delivery_confirmation) : PD;
      TRUE : state;
    esac;
 
