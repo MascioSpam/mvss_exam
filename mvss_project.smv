@@ -59,7 +59,7 @@ MODULE consumer(m)
      state = PR & m.state = GE : SEPO;
      state = SEPO & m.state = SR : PD;
    -- Type 4
-     state = PR & m.state = SR & require_netbill = FALSE & m.require_netbill = FALSE & require_encryption = FALSE & m.delivery_confirmation = FALSE : PD;
+     state = PR & m.state = SR & !require_netbill & !m.require_netbill & !require_encryption & !m.delivery_confirmation : PD;
      TRUE : state;
    esac;
 
@@ -84,14 +84,14 @@ MODULE merchant(c, n)
    next (delivery_confirmation) := delivery_confirmation;
    init (state) := I;
    next (state) := case
-     state = I & c.state = PR & (c.require_encryption = TRUE | delivery_confirmation = TRUE | c.require_netbill = TRUE | require_netbill = TRUE) : GE;
+     state = I & c.state = PR & (c.require_encryption | delivery_confirmation | c.require_netbill | require_netbill) : GE;
    -- Type 1
-     state = GE & c.state = SEPO & (c.require_netbill = TRUE | require_netbill = TRUE) : EEPO;
-     state = EEPO & n.state = SR & (c.require_netbill = TRUE | require_netbill = TRUE) : SR;
+     state = GE & c.state = SEPO & (c.require_netbill | require_netbill) : EEPO;
+     state = EEPO & n.state = SR & (c.require_netbill | require_netbill) : SR;
    -- Type 2/3
-     state = GE & c.state = SEPO & c.require_netbill = FALSE & require_netbill = FALSE & (c.require_encryption = TRUE | delivery_confirmation = TRUE) : SR;
+     state = GE & c.state = SEPO & !c.require_netbill & !require_netbill & (c.require_encryption | delivery_confirmation) : SR;
    -- Type 4
-     state = I & c.state = PR & c.require_netbill = FALSE & require_netbill = FALSE & c.require_encryption = FALSE & delivery_confirmation = FALSE : SR;
+     state = I & c.state = PR & !c.require_netbill & !require_netbill & !c.require_encryption & !delivery_confirmation : SR;
    -- Purchase Done
      state = SR & c.state = PD : PD;
      TRUE : state;
@@ -110,7 +110,7 @@ MODULE netbill(m)
  ASSIGN
    init (state) := I;
    next (state) := case
-     state = I & (m.c.require_netbill = TRUE | m.require_netbill = TRUE) & m.state = EEPO : SR;
+     state = I & (m.c.require_netbill | m.require_netbill) & m.state = EEPO : SR;
    -- Purchase Done
      state = SR & m.state = PD : PD;
      TRUE : state;
