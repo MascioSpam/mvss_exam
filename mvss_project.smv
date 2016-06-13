@@ -30,8 +30,11 @@ MODULE main
    m : merchant (c, n);
    n : netbill (m);
 
--- Checking that all computation end whit "Purchase Done"
-SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
+ -- Checking that all computation end whit "Purchase Done"
+ SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
+
+ -- If NetBill receipt is required the module final state has to be PD
+ SPEC AG ((c.require_netbill | m.require_netbill) -> AF (n.state = PD & !(n.state = I)));
 
 
 -- List of consumer states:
