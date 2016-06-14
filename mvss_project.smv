@@ -33,15 +33,18 @@ MODULE main
  -- Checking that all computation end whit "Purchase Done"
  SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 
- -- If NetBill receipt is required the module final state has to be PD
+ -- Checking Protocol Type 1 (If NetBill receipt is required the module final state has to be PD)
  SPEC AG ((c.require_netbill | m.require_netbill) -> AF (n.state = PD & !(n.state = I)));
  SPEC AG (!(c.require_netbill | m.require_netbill) -> AG (n.state = I));
 
+ -- Checking Protocol Type 2
+ SPEC AG (!(c.require_netbill | m.require_netbill) & c.require_encryption -> AG !(n.state != I | m.state = EEPO));
+
  -- Checking Protocol Type 3
- SPEC AG (!(c.require_netbill | m.require_netbill) & !(c.require_encryption) & m.delivery_confirmation -> AG !(n.state != I & m.state = GE & m.state = EEPO & c.state = SEPO));
+ SPEC AG (!(c.require_netbill | m.require_netbill) & !(c.require_encryption) & m.delivery_confirmation -> AG !(n.state != I | m.state = EEPO));
 
  -- Checking Protocol Type 4
- SPEC AG (!(c.require_netbill | m.require_netbill) & !(c.require_encryption) & !(m.delivery_confirmation) -> AG !(n.state != I & m.state = GE & m.state = EEPO & c.state = SEPO));
+ SPEC AG (!(c.require_netbill | m.require_netbill) & !(c.require_encryption) & !(m.delivery_confirmation) -> AG !(n.state != I | m.state = GE | m.state = EEPO | c.state = SEPO));
 
 
 -- List of consumer states:
