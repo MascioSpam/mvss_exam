@@ -34,8 +34,7 @@ MODULE main
  SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 
  -- Checking Protocol Type 1 (If NetBill receipt is required the module final state has to be PD)
- SPEC AG ((c.require_netbill | m.require_netbill) -> AF (n.state = PD & !(n.state = I)));
- SPEC AG (!(c.require_netbill | m.require_netbill) -> AG (n.state = I));
+ SPEC AG ((c.require_netbill | m.require_netbill) -> AF (n.state = PD));
 
  -- Checking Protocol Type 2
  SPEC AG (!(c.require_netbill | m.require_netbill) & c.require_encryption -> AG !(n.state != I | m.state = EEPO));
