@@ -61,6 +61,7 @@ MODULE consumer(m)
  ASSIGN
    init (require_netbill) := {TRUE, FALSE};
    next (require_netbill) := require_netbill | m.require_netbill;
+
    init (require_encryption) := {TRUE, FALSE};
    next (require_encryption) := require_netbill | require_encryption;
 
@@ -92,22 +93,24 @@ MODULE merchant(c, n)
  ASSIGN
    init (require_netbill) := {TRUE, FALSE};
    next (require_netbill) := c.require_netbill | require_netbill;
+
    init (delivery_confirmation) := {TRUE, FALSE};
    next (delivery_confirmation) := c.require_encryption | delivery_confirmation;
+
    init (state) := I;
    next (state) := case
-     state = I & c.state = PR & (c.require_encryption | delivery_confirmation | c.require_netbill | require_netbill) : GE;
+     state = I & c.state = PR & (c.require_encryption | delivery_confirmation | require_netbill) : GE;
    -- Type 1
-     state = GE & c.state = SEPO & (c.require_netbill | require_netbill) : EEPO;
-     state = EEPO & n.state = SR & (c.require_netbill | require_netbill) : SR;
+     state = GE & c.state = SEPO & require_netbill : EEPO;
+     state = EEPO & n.state = SR & require_netbill : SR;
    -- Type 2/3
-     state = GE & c.state = SEPO & !c.require_netbill & !require_netbill & (c.require_encryption | delivery_confirmation) : SR;
+     state = GE & c.state = SEPO & !require_netbill & (c.require_encryption | delivery_confirmation) : SR;
    -- Type 4
-     state = I & c.state = PR & !c.require_netbill & !require_netbill & !c.require_encryption & !delivery_confirmation : SR;
+     state = I & c.state = PR & !require_netbill & !c.require_encryption & !delivery_confirmation : SR;
    -- Purchase Done for type 1,2,3
-     state = SR & (c.require_netbill | require_netbill | c.require_encryption | delivery_confirmation) & c.state = PD : PD;
+     state = SR & (require_netbill | c.require_encryption | delivery_confirmation) & c.state = PD : PD;
    -- Purchase Done for type 4
-     state = SR & !(c.require_netbill | require_netbill | c.require_encryption | delivery_confirmation) : PD;
+     state = SR & !(require_netbill | c.require_encryption | delivery_confirmation) : PD;
      TRUE : state;
    esac;
 
@@ -124,7 +127,7 @@ MODULE netbill(m)
  ASSIGN
    init (state) := I;
    next (state) := case
-     state = I & (m.c.require_netbill | m.require_netbill) & m.state = EEPO : SR;
+     state = I & m.require_netbill & m.state = EEPO : SR;
    -- Purchase Done
      state = SR & m.state = PD : PD;
      TRUE : state;
