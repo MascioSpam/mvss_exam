@@ -37,6 +37,9 @@ MODULE main
  SPEC AG ((c.require_netbill | m.require_netbill) -> AF (n.state = PD & !(n.state = I)));
  SPEC AG (!(c.require_netbill | m.require_netbill) -> AG (n.state = I));
 
+ -- Checking Protocol Type 3
+ SPEC AG (!(c.require_netbill | m.require_netbill) & !(c.require_encryption) & m.delivery_confirmation -> AG !(n.state != I & m.state = GE & m.state = EEPO & c.state = SEPO));
+
  -- Checking Protocol Type 4
  SPEC AG (!(c.require_netbill | m.require_netbill) & !(c.require_encryption) & !(m.delivery_confirmation) -> AG !(n.state != I & m.state = GE & m.state = EEPO & c.state = SEPO));
 
