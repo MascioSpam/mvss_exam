@@ -118,7 +118,7 @@ MODULE main
    m : merchant (c, n);
    n : netbill (m);
 
- -- Checking that all computation end whit "Purchase Done"
+ -- Checking that all computation end with "Purchase Done"
  SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 
  -- Checking Protocol Type 1 (If NetBill receipt is required the module final state has to be PD)
