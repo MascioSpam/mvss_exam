@@ -60,9 +60,9 @@ MODULE consumer(m)
  
  ASSIGN
    init (require_netbill) := {TRUE, FALSE};
-   next (require_netbill) := require_netbill;
+   next (require_netbill) := require_netbill | m.require_netbill;
    init (require_encryption) := {TRUE, FALSE};
-   next (require_encryption) := require_encryption;
+   next (require_encryption) := require_netbill | require_encryption;
 
    init (state) := I;
    next (state) := case
@@ -91,9 +91,9 @@ MODULE merchant(c, n)
  
  ASSIGN
    init (require_netbill) := {TRUE, FALSE};
-   next (require_netbill) := require_netbill;
+   next (require_netbill) := c.require_netbill | require_netbill;
    init (delivery_confirmation) := {TRUE, FALSE};
-   next (delivery_confirmation) := delivery_confirmation;
+   next (delivery_confirmation) := c.require_encryption | delivery_confirmation;
    init (state) := I;
    next (state) := case
      state = I & c.state = PR & (c.require_encryption | delivery_confirmation | c.require_netbill | require_netbill) : GE;
