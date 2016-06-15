@@ -38,9 +38,13 @@ MODULE consumer(m)
  
  ASSIGN
    init (require_netbill) := {TRUE, FALSE};
+
+   -- Netbill receipt should be requested if one of the parties requires it
    next (require_netbill) := require_netbill | m.require_netbill;
 
    init (require_encryption) := {TRUE, FALSE};
+
+   -- If Netbill receipt is required, goods encryption is necessary
    next (require_encryption) := require_netbill | require_encryption;
 
    init (state) := I;
@@ -70,9 +74,13 @@ MODULE merchant(c, n)
  
  ASSIGN
    init (require_netbill) := {TRUE, FALSE};
+
+   -- Netbill receipt should be requested if one of the parties requires it
    next (require_netbill) := c.require_netbill | require_netbill;
 
    init (delivery_confirmation) := {TRUE, FALSE};
+
+   -- If Goods encryption is required, delivery confirmation is necessary
    next (delivery_confirmation) := c.require_encryption | delivery_confirmation;
 
    init (state) := I;
