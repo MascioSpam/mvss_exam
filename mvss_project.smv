@@ -20,6 +20,33 @@
 --- 3: Verified Delivery
 --- 4: Unverified Delivery
 
+--- Permutation of modules boolean variables whit resulting protocol type
+--
+-- C.n is Consumer.require_netbill
+-- M.n is Merchant.require_netbill
+-- C.e is Consumer.require_encryption
+-- M.d is Merchant.delivery_confirmation
+-- ______________________________
+--| C.n | M.n | C.e | M.d | Type |
+--|-----+-----+-----+-----+------|
+--|  F  |  F  |  F  |  F  |  4   |
+--|  F  |  F  |  F  |  T  |  3   |
+--|  F  |  F  |  T  |  F  |  2   |
+--|  F  |  F  |  T  |  T  |  2   |
+--|  F  |  T  |  F  |  F  |  1   |
+--|  F  |  T  |  F  |  T  |  1   |
+--|  F  |  T  |  T  |  F  |  1   |
+--|  F  |  T  |  T  |  T  |  1   |
+--|  T  |  F  |  F  |  F  |  1   |
+--|  T  |  F  |  F  |  T  |  1   |
+--|  T  |  F  |  T  |  F  |  1   |
+--|  T  |  F  |  T  |  T  |  1   |
+--|  T  |  T  |  F  |  F  |  1   |
+--|  T  |  T  |  F  |  T  |  1   |
+--|  T  |  T  |  T  |  F  |  1   |
+--|  T  |  T  |  T  |  T  |  1   |
+--|_____|_____|_____|_____|______|
+
 -------------
 -- Modules --
 -------------
