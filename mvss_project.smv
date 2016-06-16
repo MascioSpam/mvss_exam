@@ -16,9 +16,18 @@
 
 -- List of Zero-Priced Goods protocol types
 --- 1: Certified Delivery
+---- Consumer states (I, PR, EPO, PD)
+---- Merchant states (I, GE, EEPO, SR, PD)
+---- Netbill states (I, SR, PD)
 --- 2: Certified Delivery without NetBill Server
+---- Consumer states (I, PR, EPO, PD)
+---- Merchant states (I, GE, SR, PD)
 --- 3: Verified Delivery
+---- Consumer states (I, PR, EPO, PD)
+---- Merchant states (I, GE, SR, PD)
 --- 4: Unverified Delivery
+---- Consumer states (I, PR, PD)
+---- Merchant states (I, SR, PD)
 
 --- Permutation of modules boolean variables whit resulting protocol type
 --
@@ -52,16 +61,16 @@
 -------------
 
 -- List of consumer states:
---- I:	  Idle
+--- I:	  Idle					Reachable from Protocol Type 1/2/3/4
 --- PR:   Price Request				Reachable from Protocol Type 1/2/3/4
---- SEPO: Signed Electronic Payment Order	Reachable from Protocol Type 1/2/3
+--- EPO:  Electronic Payment Order		Reachable from Protocol Type 1/2/3
 --- PD:   Purchase done				Reachable from Protocol Type 1/2/3/4
 
 MODULE consumer(m)
  VAR
    require_netbill : boolean;
    require_encryption : boolean;
-   state : {I, PR, SEPO, PD};
+   state : {I, PR, EPO, PD};
  
  ASSIGN
    init (require_netbill) := {TRUE, FALSE};
@@ -78,8 +87,8 @@ MODULE consumer(m)
    next (state) := case
      state = I : PR;
    -- Type 1/2/3
-     state = PR & m.state = GE : SEPO;
-     state = SEPO & m.state = SR : PD;
+     state = PR & m.state = GE : EPO;
+     state = EPO & m.state = SR : PD;
    -- Type 4
      state = PR & m.state = SR & !require_netbill & !m.require_netbill & !require_encryption & !m.delivery_confirmation : PD;
      TRUE : state;
@@ -87,11 +96,11 @@ MODULE consumer(m)
 
 
 -- List of merchant states:
---- I:    Idle
+--- I:    Idle			Reachable from Protocol Type 1/2/3/4
 --- GE:   Encrypted Goods	Reachable from Protocol Type 1/2/3
 --- EEPO: Endorsed EPO		Reachable from Protocol Type 1
 --- SR:   Send Result		Reachable from Protocol Type 1/2/3/4
---- PD:   Purchase done
+--- PD:   Purchase done		Reachable from Protocol Type 1/2/3/4
 
 MODULE merchant(c, n)
  VAR
@@ -114,10 +123,10 @@ MODULE merchant(c, n)
    next (state) := case
      state = I & c.state = PR & (c.require_encryption | delivery_confirmation | require_netbill) : GE;
    -- Type 1
-     state = GE & c.state = SEPO & require_netbill : EEPO;
+     state = GE & c.state = EPO & require_netbill : EEPO;
      state = EEPO & n.state = SR & require_netbill : SR;
    -- Type 2/3
-     state = GE & c.state = SEPO & !require_netbill & (c.require_encryption | delivery_confirmation) : SR;
+     state = GE & c.state = EPO & !require_netbill & (c.require_encryption | delivery_confirmation) : SR;
    -- Type 4
      state = I & c.state = PR & !require_netbill & !c.require_encryption & !delivery_confirmation : SR;
    -- Purchase Done for type 1,2,3
@@ -129,8 +138,8 @@ MODULE merchant(c, n)
 
 -- List of netbill server states:
 --- I:  Idle
---- SR: Signed Result
---- PD: Purchase done
+--- SR: Signed Result	Reachable from Protocol Type 1
+--- PD: Purchase done	Reachable from Protocol Type 1
 
 MODULE netbill(m)
  VAR
@@ -165,4 +174,4 @@ MODULE main
  SPEC AG (!(c.require_netbill | m.require_netbill) & !(c.require_encryption) & m.delivery_confirmation -> AG !(n.state != I | m.state = EEPO));
 
  -- Checking Protocol Type 4
- SPEC AG (!(c.require_netbill | m.require_netbill) & !(c.require_encryption) & !(m.delivery_confirmation) -> AG !(n.state != I | m.state = GE | m.state = EEPO | c.state = SEPO));
+ SPEC AG (!(c.require_netbill | m.require_netbill) & !(c.require_encryption) & !(m.delivery_confirmation) -> AG !(n.state != I | m.state = GE | m.state = EEPO | c.state = EPO));
