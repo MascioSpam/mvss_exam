@@ -53,9 +53,9 @@
 
 -- List of consumer states:
 --- I:	  Idle
---- PR:   Price Request
---- SEPO: Signed Electronic Payment Order
---- PD:   Purchase done
+--- PR:   Price Request				Reachable from Protocol Type 1/2/3/4
+--- SEPO: Signed Electronic Payment Order	Reachable from Protocol Type 1/2/3
+--- PD:   Purchase done				Reachable from Protocol Type 1/2/3/4
 
 MODULE consumer(m)
  VAR
@@ -88,9 +88,9 @@ MODULE consumer(m)
 
 -- List of merchant states:
 --- I:    Idle
---- GE:   Encrypted Goods
---- EEPO: Endorsed EPO
---- SR:   Signed Result
+--- GE:   Encrypted Goods	Reachable from Protocol Type 1/2/3
+--- EEPO: Endorsed EPO		Reachable from Protocol Type 1
+--- SR:   Send Result		Reachable from Protocol Type 1/2/3/4
 --- PD:   Purchase done
 
 MODULE merchant(c, n)
@@ -127,11 +127,10 @@ MODULE merchant(c, n)
      TRUE : state;
    esac;
 
-
 -- List of netbill server states:
 --- I:  Idle
 --- SR: Signed Result
---- PD:   Purchase done
+--- PD: Purchase done
 
 MODULE netbill(m)
  VAR
