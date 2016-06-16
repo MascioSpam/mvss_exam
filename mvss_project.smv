@@ -161,6 +161,21 @@ MODULE main
    m : merchant (c, n);
    n : netbill (m);
 
+ -- Checking boolean values for Type 4 of Protocol
+ SPEC AG ((c.require_netbill = FALSE & m.require_netbill = FALSE & c.require_encryption = FALSE & m.delivery_confirmation = FALSE) -> AG (m.state != GE | m.state != EEPO | c.state != EPO));
+
+ -- Checking boolean values for Type 3 of Protocol
+ SPEC AG ((c.require_netbill = FALSE & m.require_netbill = FALSE & c.require_encryption = FALSE & m.delivery_confirmation = TRUE) -> AG (m.state != EEPO));
+
+ -- Checking boolean values for Type 2 of Protocol
+ SPEC AG ((c.require_netbill = FALSE & m.require_netbill = FALSE & c.require_encryption = TRUE) -> AG (m.state != EEPO));
+
+ -- Checking boolean values for Type 1 of Protocol
+ SPEC AG ((c.require_netbill = TRUE & m.require_netbill = TRUE) -> AF (n.state != I));
+
+ -- Test
+ SPEC AG ((c.state = I | m.state = I) -> AX (c.require_netbill = m.require_netbill));
+
  -- Checking that all computation end with "Purchase Done"
  SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 
