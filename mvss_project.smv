@@ -164,8 +164,8 @@ MODULE main
  --- Checking that all computation end with "Purchase Done"
  CTLSPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 
- -- If Netbill state is different to Idle, Netbill request must be FALSE
- CTLSPEC AF ((n.state != I) -> AG (!m.require_netbill & !c.require_netbill))
+ -- If Netbill state is different to Idle, Netbill request must be TRUE
+ CTLSPEC AG ((n.state != I) -> AG (m.require_netbill & c.require_netbill))
 
  --- If we're in a Protocol Type, modules can't reach unreachable states (for that protocol)
 
