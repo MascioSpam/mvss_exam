@@ -117,7 +117,7 @@ MODULE merchant(c, n)
    init (delivery_confirmation) := {TRUE, FALSE};
 
    -- If Goods encryption is required, delivery confirmation is necessary
-   next (delivery_confirmation) := c.require_encryption | delivery_confirmation;
+   next (delivery_confirmation) := c.require_encryption | delivery_confirmation | require_netbill;
 
    init (state) := I;
    next (state) := case
@@ -162,21 +162,21 @@ MODULE main
    n : netbill (m);
 
  --- Checking that all computation end with "Purchase Done"
- SPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
+ CTLSPEC AF (c.state = PD & m.state = PD & (n.state = PD | n.state = I));
 
  -- If Netbill state is different to Idle, Netbill request must be FALSE
- SPEC AF ((n.state != I) -> AG (!m.require_netbill & !c.require_netbill))
+ CTLSPEC AF ((n.state != I) -> AG (!m.require_netbill & !c.require_netbill))
 
  --- If we're in a Protocol Type, modules can't reach unreachable states (for that protocol)
 
- -- Checking boolean values for Type 4 of Protocol
- SPEC AG ((!c.require_netbill & !m.require_netbill & !c.require_encryption & !m.delivery_confirmation) -> AG (m.state != GE & m.state != EEPO & c.state != EPO & n.state = I));
+ -- Checking values for Type 4 of Protocol
+ CTLSPEC AG ((!c.require_netbill & !m.require_netbill & !c.require_encryption & !m.delivery_confirmation) -> AG (m.state != GE & m.state != EEPO & c.state != EPO & n.state = I));
 
- -- Checking boolean values for Type 3 of Protocol
- SPEC AG ((!c.require_netbill & !m.require_netbill & !c.require_encryption & m.delivery_confirmation) -> AG (m.state != EEPO & n.state = I));
+ -- Checking values for Type 3 of Protocol
+ CTLSPEC AG ((!c.require_netbill & !m.require_netbill & !c.require_encryption & m.delivery_confirmation) -> AG (m.state != EEPO & n.state = I));
 
- -- Checking boolean values for Type 2 of Protocol
- SPEC AG ((!c.require_netbill & !m.require_netbill & c.require_encryption) -> AG (m.state != EEPO & n.state = I));
+ -- Checking values for Type 2 of Protocol
+ CTLSPEC AG ((!c.require_netbill & !m.require_netbill & c.require_encryption) -> AG (m.state != EEPO & n.state = I));
 
  -- Checking Protocol Type 1 (If NetBill receipt is required the module final state has to be PD)
- SPEC AG ((c.require_netbill & m.require_netbill) -> AF (n.state = PD));
+ CTLSPEC AG ((c.require_netbill & m.require_netbill) -> AF (n.state = PD));
